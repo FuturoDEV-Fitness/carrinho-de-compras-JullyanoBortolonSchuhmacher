@@ -5,10 +5,11 @@
 
 main  
 └── develop  
-    ├── cadastros  
-    │   ├── clientes (ex. 2)  
-    │   ├── produtos (ex. 3)  
-    │   └── carrinho (ex. 6)  
-    └── listagens  
-        ├── produtos (ex. 4)  
-        └── produtos com detalhes (ex. 5) 
+.    ├── cadastros  
+.    │   ├── clientes (ex. 2)  
+.    │   ├── produtos (ex. 3)  
+.    │   └── carrinho (ex. 6)  
+.    └── listagens  
+.        ├── produtos (ex. 4)  
+.        └── produtos com detalhes (ex. 5) 
+main
