@@ -1,15 +1,14 @@
-const { Pool } = require('pg');
+const express = require('express');
 
-class Database {
-    constructor() {
-        this.database = new Pool({
-            user: 'postgres',     
-            host: 'localhost',        
-            database: 'carrinho_de_compras',  
-            password: '',     
-            port: 5432,                
-        });
-    }
-}
+const clientRouter = require('./routers/router.client.js');
 
-module.exports = Database;
+const app = express();
+const port = 3000;
+
+app.use(express.json());
+
+app.use('/clients', clientRouter);
+
+app.listen(port, () => {
+  console.log(`Servidor rodando em http://localhost:${port}`);
+});
