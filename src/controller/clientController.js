@@ -1,6 +1,6 @@
 const BaseDeDados = require('../database/connection');
 
-class clientController {
+class ClientController {
   constructor() {
     this.db = new BaseDeDados().database;
   }
@@ -46,7 +46,7 @@ class clientController {
     }
   }
 
-  // Listando cliente por ID 
+  // Listando cliente por ID  
   async listId(req, res) { 
     const { id } = req.params; 
     if (!id) { 
@@ -127,6 +127,53 @@ class clientController {
       return res.status(400).json({ error: err.message, message: 'Ocorreu um erro ao deletar o cliente' });
     }
   }
+
+  //atualizando
+  async update(req, res) {
+    try {
+      const { id } = req.params;
+      const order = req.body;
+
+      const dados = await this.validandoDados(order);
+
+      // Verificar se o pedido existe
+      const checkOrderQuery = "SELECT * FROM orders WHERE id = $1";
+      const checkOrderResult = await this.db.query(checkOrderQuery, [id]);
+
+      if (checkOrderResult.rows.length === 0) {
+        return res.status(404).json({ error: "Pedido não encontrado." });
+      }
+
+      // Atualiza na tabela orders
+      const updateOrderQuery = `
+        UPDATE orders
+        SET total = $1, address = $2, observations = $3
+        WHERE id = $4
+        RETURNING id;`;
+
+      const updateOrderValues = [dados.total, dados.address, dados.observations, id];
+      await this.db.query(updateOrderQuery, updateOrderValues);
+
+      // Deleta os itens na tabela orders_items
+      const deleteItemsQuery = "DELETE FROM orders_items WHERE order_id = $1";
+      await this.db.query(deleteItemsQuery, [id]);
+
+      // Insere novos itens na tabela orders_items
+      for (const item of dados.items) {
+        const insertItemQuery = `
+          INSERT INTO orders_items (amount, price, order_id, product_id)
+          VALUES ($1, $2, $3, $4);`;
+
+        const insertItemValues = [item.amount, item.price, id, item.product_id];
+        await this.db.query(insertItemQuery, insertItemValues);
+      }
+
+      res.status(200).json({ message: "Pedido atualizado com sucesso." });
+
+    } catch (error) {
+      res.status(500).json({ message: "Erro ao atualizar o pedido.", error: error.message });
+    }
+  }
 }
 
-module.exports = new clientController();
+module.exports = new ClientController();
