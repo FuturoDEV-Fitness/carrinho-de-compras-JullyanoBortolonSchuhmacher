@@ -46,7 +46,7 @@ class clientController {
     }
   }
 
-  // Listando cliente por ID 
+  // Listando cliente por ID  
   async listId(req, res) { 
     const { id } = req.params; 
     if (!id) { 
