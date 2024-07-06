@@ -46,6 +46,23 @@ class clientController {
     }
   }
 
+  // Listando cliente por ID 
+  async listId(req, res) { 
+    const { id } = req.params; 
+    if (!id) { 
+      return res.status(400).json({ error: 'Por favor, insira o ID do cliente.' }); 
+    } 
+    try { 
+      const result = await this.db.query('SELECT * FROM clients WHERE id = $1', [id]); 
+      if (result.rows.length === 0) { 
+        return res.status(404).json({ error: 'Cliente não encontrado' }); 
+      } 
+      return res.status(200).json({ data: result.rows[0] }); 
+    } catch (err) { 
+      return res.status(400).json({ error: err.message, message: 'Ocorreu um erro ao listar o cliente' }); 
+    } 
+  } 
+
   // Listando todos os clientes
   async list(req, res) {
     try {
@@ -53,22 +70,6 @@ class clientController {
       return res.status(200).json({ message: 'Listagem de todos os clientes.', data: result.rows });
     } catch (err) {
       return res.status(400).json({ error: err.message, message: 'Ocorreu um erro ao listar os clientes' });
-    }
-  }
-  // Listando cliente por ID
-  async listId(req, res) {
-    const { id } = req.params;
-    if (!id) {
-      return res.status(400).json({ error: 'Por favor, insira o ID do cliente.' });
-    }
-    try {
-      const result = await this.db.query('SELECT * FROM clients WHERE id = $1', [id]);
-      if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Cliente não encontrado' });
-      }
-      return res.status(200).json({ data: result.rows[0] });
-    } catch (err) {
-      return res.status(400).json({ error: err.message, message: 'Ocorreu um erro ao listar o cliente' });
     }
   }
 

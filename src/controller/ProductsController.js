@@ -36,21 +36,17 @@ class ProductsController {
     return dados;
   }
 
-  // Listando todos
-  async list(req, res) {
-    try {
-      const result = await this.db.query('SELECT * FROM products');
-      res.json(result.rows);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
-  }
-
-  // Listando p/ id
-  async listId(req, res) {
+  // Listando p/ id e com categoria *detailédi*
+  async listProductDetailed(req, res) {
     const { id } = req.params;
     try {
-      const result = await this.db.query('SELECT * FROM products WHERE id = $1', [id]);
+      const query = `
+        SELECT products.*, categories.name AS category_name
+        FROM products
+        INNER JOIN categories ON products.category_id = categories.id
+        WHERE products.id = $1
+      `;
+      const result = await this.db.query(query, [id]);
       if (result.rows.length === 0) {
         return res.status(404).json({ error: 'Produto não encontrado' });
       }
@@ -59,6 +55,16 @@ class ProductsController {
       res.status(500).json({ error: err.message });
     }
   }
+
+  // Listando todos 
+  async list(req, res) { 
+    try { 
+      const result = await this.db.query('SELECT * FROM products'); 
+      res.json(result.rows); 
+    } catch (err) { 
+      res.status(500).json({ error: err.message }); 
+    } 
+  } 
 
   // Criando 
   async create(req, res) {
