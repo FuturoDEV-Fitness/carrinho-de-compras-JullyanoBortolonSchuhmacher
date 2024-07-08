@@ -202,10 +202,8 @@ class OrderController {
       const { id } = req.params;
       const order = req.body;
 
-      // Validar os dados do pedido
       const dados = await this.validandoDados(order);
 
-      // Verificar se o pedido existe
       const checkOrderQuery = "SELECT * FROM orders WHERE id = $1";
       const checkOrderResult = await this.db.query(checkOrderQuery, [id]);
 
@@ -213,7 +211,6 @@ class OrderController {
         return res.status(404).json({ error: "Pedido não encontrado." });
       }
 
-      // Atualiza na tabela orders
       const updateOrderQuery = `
         UPDATE orders
         SET total = $1, address = $2, observations = $3
@@ -223,11 +220,9 @@ class OrderController {
       const updateOrderValues = [dados.total, dados.address, dados.observations, id];
       await this.db.query(updateOrderQuery, updateOrderValues);
 
-      // Deleta itens na tabela orders_items
       const deleteItemsQuery = "DELETE FROM orders_items WHERE order_id = $1";
       await this.db.query(deleteItemsQuery, [id]);
 
-      // Insere novos itens na tabela orders_items
       for (const item of dados.items) {
         const insertItemQuery = `
           INSERT INTO orders_items (amount, price, order_id, product_id)
