@@ -73,43 +73,6 @@ class ClientController {
     }
   }
 
-  // Atualizando cliente
-  async update(req, res) {
-    const { id } = req.params;
-    const { name, email, cpf, contact } = req.body;
-    
-    const dados = await this.tratamentoDosDados(name, email, cpf, contact);
-    if (Object.keys(dados).length === 0) {
-      return res.status(400).json({ error: 'Nenhum campo para atualizar foi fornecido' });
-    }
-    
-    const setClauses = [];
-    const values = [];
-    let index = 1;
-    for (const [key, value] of Object.entries(dados)) {
-      setClauses.push(`${key} = $${index}`);
-      values.push(value);
-      index++;
-    }
-    values.push(id);
-    
-    const query = `
-      UPDATE clients
-      SET ${setClauses.join(', ')}
-      WHERE id = $${index}
-      RETURNING *
-    `;
-    try {
-      const result = await this.db.query(query, values);
-      if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Cliente não encontrado' });
-      }
-      return res.status(200).json({ message: 'Cliente atualizado com sucesso.', data: result.rows[0] });
-    } catch (err) {
-      return res.status(400).json({ error: err.message, message: 'Ocorreu um erro ao atualizar o cliente' });
-    }
-  }
-
   // Deletando cliente
   async delete(req, res) {
     const { id } = req.params;
